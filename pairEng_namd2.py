@@ -470,7 +470,7 @@ def main():
     parser.add_argument('--parafolder', dest='parafolder', type=str, default='toppar',
                         help='Folder path for storing calculation results. '
     )
-    parser.add_argument('--numCores', dest='numCores', default=multiprocessing.cpu_count(), type=int,
+    parser.add_argument('--numCores', dest='numCores', default=multiprocessing.cpu_count()-1, type=int,
                         help='Number of CPU cores to be employed. '
                              'If not specified, it defaults to the number of cpu cores present '
                              'in your computer.'
