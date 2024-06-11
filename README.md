@@ -4,4 +4,12 @@ This analysis uses atomic contact information of interest to filter residue pair
 
 # Usage: 
 
-pairwiseEng_namd2.py [-h] [--pdb PDB] [--psf PSF] [--traj TRAJ] [--sel1 SEL1 [SEL1 ...]] [--sel2 SEL2 [SEL2 ...]] [--cutoff CUTOFF] [--DistanceMap] [--ContactMap] [--calc] [--intengbackbone] [--intengsidechain] [--exe NAMD2EXE] [--namd2NumCores NAMD2NUMCORES] [--pairfilterthreshold pairfilterthreshold] [--outfolder OUTFOLDER] [--parafolder PARAFOLDER] [--numCores NUMCORES]
+python pairwiseEng_namd2.py [-h] [--pdb PDB] [--psf PSF] [--traj TRAJ] [--sel1 SEL1 [SEL1 ...]] [--sel2 SEL2 [SEL2 ...]] [--cutoff CUTOFF] [--DistanceMap] [--ContactMap] [--calc] [--intengbackbone] [--intengsidechain] [--exe NAMD2EXE] [--namd2NumCores NAMD2NUMCORES] [--pairfilterthreshold pairfilterthreshold] [--outfolder OUTFOLDER] [--parafolder PARAFOLDER] [--numCores NUMCORES]
+
+Note:
+1. the app only currently allows one dcd file input.
+2. atomselection method as mdtraj https://mdtraj.org/1.9.4/atom_selection.html
+3. cutoff unit in angstrom
+4. the backbone-backbone or sidechain-sidechain residual pairwise options only for protein
+
+The analysis will generate interresidue pairwise vdW, electrical and total energies (energies_intEnTotal.csv, energies_intEnElec.csv, and energies_intEnVdW.csv) under the OUTFOLDER.
