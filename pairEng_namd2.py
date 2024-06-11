@@ -248,7 +248,7 @@ def run_single_namd2(args, filtered_pairs_singleCore):
     natom=args.file.topology.n_atoms
     args.filtered_pairs_singleCore = filtered_pairs_singleCore
     for a_resid, b_resid in args.filtered_pairs_singleCore:
-        bfactor=bfactor_tmp_pdb(args.file.topology,a_resid,b_resid)
+        bfactor=bfactor_tmp_pdb(args,a_resid,b_resid)
         pairPDB = '%s/%s_%s-tmp.pdb' % (args.outfolder,a_resid,b_resid)
         outf = md.Trajectory(args.file.positions, args.file.topology)
         outf.save_pdb(pairPDB,bfactors=bfactor)
@@ -283,14 +283,28 @@ def run_single_namd2(args, filtered_pairs_singleCore):
 
         pid_namd2.wait()
 
-def bfactor_tmp_pdb(topology,a_resid,b_resid):
-    natom=topology.n_atoms
+def bfactor_tmp_pdb(args,a_resid,b_resid):
+    natom=args.file.topology.n_atoms
     bfactor = np.zeros(natom)
-    for atom in topology.atoms:
-        if atom.residue.index == a_resid:
-            bfactor[atom.index] = 1
-        if atom.residue.index == b_resid:
-            bfactor[atom.index] = 2
+    if args.intengbackbone:
+        for atom in args.file.topology:
+            if atom.residue.index == a_resid:
+                for atom.residue.index in args.file.topology.select("protein and backbone"): bfactor[atom.index] = 1
+            if atom.residue.index == b_resid:
+                for atom.residue.index in args.file.topology.select("protein and backbone"): bfactor[atom.index] = 2
+                    
+    elif args.intengsidechain:
+        for atom in args.file.topology:
+            if atom.residue.index == a_resid:
+                for atom.residue.index in args.file.topology.select("protein and sidechain"): bfactor[atom.index] = 1
+            if atom.residue.index == b_resid:
+                for atom.residue.index in args.file.topology.select("protein and sidechain"): bfactor[atom.index] = 2
+    else:
+        for atom in args.file.topology.atoms:
+            if atom.residue.index == a_resid:
+               bfactor[atom.index] = 1
+            if atom.residue.index == b_resid:
+                bfactor[atom.index] = 2
     return bfactor
 
 def prepare_tmp_pdb(args,file,residue_pairs):
@@ -429,17 +443,25 @@ def main():
             help='performing residue pairwise energy calculation. ',
             default=False,
     )
+    parser.add_argument(
+            '--intengbackbone', dest='intengbackbone', action='store_true',
+            help='performing residue pairwise backbone energy calculation. ',
+            default=False,
+    )
+    parser.add_argument(
+            '--intengsidechain', dest='intengsidechain', action='store_true',
+            help='performing residue pairwise sidechain energy calculation. ',
+            default=False,
+    )
     parser.add_argument('--exe', dest='namd2exe', default=None, type=str,
                         help='Path to the namd2 executable. (assumes namd2 is in the executable search path.)'
     )
     parser.add_argument('--namd2NumCores', dest='namd2NumCores', default=1, type=int,
                         help='Number of CPU cores to be employed for interaction energy calculation '
-                             'by NAMD2 executable in a single subprocess. If not specified, it defaults to 1, '
-                             'and NUMCORES subprocesses are used.'
+                             'by NAMD2 executable in a single subprocess. If not specified, it defaults to 1. '
     )
-    parser.add_argument('--pairfilterpercentage', dest='pairfilterpercentage', type=float, default=75,
-                        help='When given, residues whose centers of masses  are within the PAIRFILTERCUTOFF distance from each '
-                             'other for at least PAIRFILTERPERCENTAGE percent of the trajectory will be taken '
+    parser.add_argument('--pairfilterthreshold', dest='pairfilterthreshold', type=float, default=75,
+                        help='When given, residue pairs whose contact frequency are over pairfilterthreshold will be taken '
                              'into account in further evaluations. When not given, it defaults to 75%%'
     )
     parser.add_argument('--outfolder', dest='outfolder', type=str, default='outfolder',
@@ -448,7 +470,6 @@ def main():
     parser.add_argument('--parafolder', dest='parafolder', type=str, default='toppar',
                         help='Folder path for storing calculation results. '
     )
-
     parser.add_argument('--numCores', dest='numCores', default=multiprocessing.cpu_count(), type=int,
                         help='Number of CPU cores to be employed. '
                              'If not specified, it defaults to the number of cpu cores present '
