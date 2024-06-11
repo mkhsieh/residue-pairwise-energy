@@ -1,6 +1,6 @@
 # residue-pairwise-energy
 
-The analysis is very similar to gRINN (https://grinn.readthedocs.io/en/latest/)
+The analysis takes user interested atom contact information to filter residue pairs and provides extra options for backbone and sidechain interresidual pairwise energies. Current, the script require to specify the atom for selection (i.e., protein and name CA).   
 
 usage: pairwiseEng_namd2.py [-h] [--pdb PDB] [--psf PSF] [--traj TRAJ] [--sel1 SEL1 [SEL1 ...]] [--sel2 SEL2 [SEL2 ...]] [--cutoff CUTOFF] [--DistanceMap] [--ContactMap] [--calc] [--exe NAMD2EXE] [--namd2NumCores NAMD2NUMCORES] [--pairfilterpercentage PAIRFILTERPERCENTAGE] [--outfolder OUTFOLDER]
 [--parafolder PARAFOLDER] [--numCores NUMCORES]
